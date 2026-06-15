@@ -474,6 +474,7 @@ export async function buildWorkflow(config: BuildWorkflowConfig): Promise<BuildR
 	const followUpMessages: string[] = [];
 	let credentialViewPinned = true;
 	let restoredWorkflowIds: string[] = [];
+	let restoredDataTableIds: string[] = [];
 	let seededTranscript: TranscriptTurn[] = [];
 	let seedingFailed = false;
 
@@ -564,11 +565,17 @@ export async function buildWorkflow(config: BuildWorkflowConfig): Promise<BuildR
 					threadId,
 					remapped.messages,
 					remapped.workflows,
+					remapped.dataTables,
 				);
 				restoredWorkflowIds = restoreResult.workflowIds;
+				restoredDataTableIds = restoreResult.dataTableIds;
 				seededTranscript = transcriptPrefixFromSeed(remapped.messages);
+				const dtSuffix =
+					restoredDataTableIds.length > 0
+						? `, ${String(restoredDataTableIds.length)} data table(s)`
+						: '';
 				logger.info(
-					`  Seeded ${String(restoreResult.restored)} prior message(s), ${String(restoredWorkflowIds.length)} workflow(s)${config.laneTag ?? ''}`,
+					`  Seeded ${String(restoreResult.restored)} prior message(s), ${String(restoredWorkflowIds.length)} workflow(s)${dtSuffix}${config.laneTag ?? ''}`,
 				);
 			} catch (error: unknown) {
 				seedingFailed = true;
@@ -697,7 +704,7 @@ export async function buildWorkflow(config: BuildWorkflowConfig): Promise<BuildR
 				workflowJsons: [],
 				buildTrace,
 				createdWorkflowIds: restoredWorkflowIds,
-				createdDataTableIds: outcome.dataTablesCreated,
+				createdDataTableIds: [...outcome.dataTablesCreated, ...restoredDataTableIds],
 				conversationMetrics,
 				events,
 				threadId,
@@ -729,7 +736,7 @@ export async function buildWorkflow(config: BuildWorkflowConfig): Promise<BuildR
 			workflowJsons: outcome.workflowJsons,
 			buildTrace,
 			createdWorkflowIds: outcome.workflowsCreated.map((wf) => wf.id),
-			createdDataTableIds: outcome.dataTablesCreated,
+			createdDataTableIds: [...outcome.dataTablesCreated, ...restoredDataTableIds],
 			conversationMetrics,
 			events,
 			threadId,
@@ -747,7 +754,7 @@ export async function buildWorkflow(config: BuildWorkflowConfig): Promise<BuildR
 			error: error instanceof Error ? error.message : String(error),
 			workflowJsons: [],
 			createdWorkflowIds: restoredWorkflowIds,
-			createdDataTableIds: [],
+			createdDataTableIds: restoredDataTableIds,
 			conversationMetrics,
 			events,
 			threadId,

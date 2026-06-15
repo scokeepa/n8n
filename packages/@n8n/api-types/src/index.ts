@@ -406,6 +406,7 @@ export type {
 	InstanceAiEvalRewrittenCredential,
 	InstanceAiEvalExecutionResult,
 	InstanceAiEvalSeedWorkflow,
+	InstanceAiEvalSeedDataTable,
 } from './schemas/instance-ai.schema';
 
 export type {

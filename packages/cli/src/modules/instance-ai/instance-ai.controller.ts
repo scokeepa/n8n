@@ -685,7 +685,13 @@ export class InstanceAiController {
 		}
 
 		const workflows = payload.workflows ?? [];
-		await this.evalThreadRestore.restoreWorkflows(workflows, projectId);
+		// Data tables first: the workflows reference them, and their ids are
+		// rewritten to the recreated tables' ids during workflow restore.
+		const { idMap, createdIds: dataTableIds } = await this.evalThreadRestore.restoreDataTables(
+			payload.dataTables ?? [],
+			projectId,
+		);
+		await this.evalThreadRestore.restoreWorkflows(workflows, projectId, idMap);
 		const { restored } = await this.memoryService.restoreThreadMessages(
 			req.user.id,
 			payload.threadId,
@@ -696,6 +702,7 @@ export class InstanceAiController {
 			threadId: payload.threadId,
 			restored,
 			workflowIds: workflows.map((workflow) => workflow.id),
+			dataTableIds,
 		};
 	}
 

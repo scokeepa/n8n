@@ -10,6 +10,7 @@ import type {
 	InstanceAiConfirmRequest,
 	InstanceAiRichMessagesResponse,
 	InstanceAiEvalExecutionResult,
+	InstanceAiEvalSeedDataTable,
 	InstanceAiEvalSeedWorkflow,
 } from '@n8n/api-types';
 import { z } from 'zod';
@@ -22,6 +23,7 @@ const RestoreThreadEnvelope = z.object({
 		threadId: z.string(),
 		restored: z.number(),
 		workflowIds: z.array(z.string()),
+		dataTableIds: z.array(z.string()).default([]),
 	}),
 });
 
@@ -502,10 +504,11 @@ export class N8nClient {
 		threadId: string,
 		messages: Array<Record<string, unknown>>,
 		workflows: InstanceAiEvalSeedWorkflow[],
-	): Promise<{ restored: number; workflowIds: string[] }> {
+		dataTables: InstanceAiEvalSeedDataTable[] = [],
+	): Promise<{ restored: number; workflowIds: string[]; dataTableIds: string[] }> {
 		const result = await this.fetch('/rest/instance-ai/eval/restore-thread', {
 			method: 'POST',
-			body: { threadId, messages, workflows },
+			body: { threadId, messages, workflows, dataTables },
 		});
 		return RestoreThreadEnvelope.parse(result).data;
 	}
