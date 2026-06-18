@@ -15,7 +15,6 @@ import {
 	type EntityManager,
 	type EntityMetadata,
 } from '@n8n/typeorm';
-import { createUser } from '@test-integration/db/users';
 import { mocked } from 'jest-mock';
 import { mock } from 'jest-mock-extended';
 import {
@@ -30,6 +29,7 @@ import { EventService } from '@/events/event.service';
 import { OwnershipService } from '@/services/ownership.service';
 import { UserService } from '@/services/user.service';
 import { WorkflowStatisticsService } from '@/services/workflow-statistics.service';
+import { createUser } from '@test-integration/db/users';
 
 describe('WorkflowStatisticsService', () => {
 	describe('workflowExecutionCompleted', () => {
@@ -59,7 +59,7 @@ describe('WorkflowStatisticsService', () => {
 			await testDb.truncate(['WorkflowStatistics']);
 		});
 
-		test.each<WorkflowExecuteMode>(['cli', 'error', 'retry', 'trigger', 'webhook', 'evaluation'])(
+		test.each<WorkflowExecuteMode>(['cli', 'retry', 'trigger', 'webhook', 'evaluation'])(
 			'should upsert `count` and `rootCount` for execution mode %s',
 			async (mode) => {
 				// ARRANGE
@@ -88,7 +88,7 @@ describe('WorkflowStatisticsService', () => {
 			},
 		);
 
-		test.each<WorkflowExecuteMode>(['manual', 'integrated', 'internal'])(
+		test.each<WorkflowExecuteMode>(['manual', 'integrated', 'internal', 'error'])(
 			'should upsert `count`, but not `rootCount` for execution mode %s',
 			async (mode) => {
 				// ARRANGE
@@ -119,6 +119,30 @@ describe('WorkflowStatisticsService', () => {
 			},
 		);
 
+<<<<<<< HEAD
+=======
+		test('should not upsert production statistics for chat execution mode', async () => {
+			const mode: WorkflowExecuteMode = 'chat';
+			for (const status of ['success', 'error', 'crashed'] as const) {
+				await testDb.truncate(['WorkflowStatistics']);
+
+				const runData: IRun = {
+					finished: status === 'success',
+					status,
+					data: createEmptyRunExecutionData(),
+					mode,
+					startedAt: new Date(),
+					storedAt: 'db',
+				};
+
+				await workflowStatisticsService.workflowExecutionCompleted(workflow, runData);
+
+				const statistics = await workflowStatisticsRepository.find();
+				expect(statistics).toHaveLength(0);
+			}
+		});
+
+>>>>>>> f6c2bcc6 (fix(core): Exclude error workflow executions from billable execution count (#32315))
 		test.each<ExecutionStatus>(['success', 'crashed', 'error'])(
 			'should upsert `count` and `rootCount` for execution status %s',
 			async (status) => {
