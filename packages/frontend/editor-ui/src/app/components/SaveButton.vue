@@ -46,12 +46,13 @@ const shortcutTooltipLabel = computed(() => {
 
 <template>
 	<span :class="$style.container" data-test-id="save-button">
-		<span v-if="saved" :class="$style.saved" @click.prevent.stop>{{
-			i18n.baseText('saveButton.saved')
-		}}</span>
-		<template v-else>
+		<Transition name="save-state" mode="out-in">
+			<span v-if="saved" :class="$style.saved" key="saved" @click.prevent.stop>{{
+				i18n.baseText('saveButton.saved')
+			}}</span>
 			<KeyboardShortcutTooltip
-				v-if="withShortcut"
+				v-else-if="withShortcut"
+				key="save-shortcut"
 				:label="shortcutTooltipLabel"
 				:shortcut="{ keys: ['s'], metaKey: true }"
 				placement="bottom"
@@ -66,13 +67,14 @@ const shortcutTooltipLabel = computed(() => {
 			</KeyboardShortcutTooltip>
 			<N8nButton
 				v-else
+				key="save"
 				:label="saveButtonLabel"
 				:loading="isSaving"
 				:disabled="disabled"
 				:variant="variant"
 				@click="emit('click')"
 			/>
-		</template>
+		</Transition>
 	</span>
 </template>
 
@@ -81,6 +83,7 @@ const shortcutTooltipLabel = computed(() => {
 	display: inline-flex;
 	justify-content: center;
 	align-items: center;
+	min-width: 53px;
 }
 
 .saved {
@@ -91,5 +94,15 @@ const shortcutTooltipLabel = computed(() => {
 	text-align: center;
 	padding: var(--spacing--2xs) var(--spacing--2xs);
 	min-width: 53px;
+}
+
+:global(.save-state-enter-active),
+:global(.save-state-leave-active) {
+	transition: opacity 0.15s ease;
+}
+
+:global(.save-state-enter-from),
+:global(.save-state-leave-to) {
+	opacity: 0;
 }
 </style>
