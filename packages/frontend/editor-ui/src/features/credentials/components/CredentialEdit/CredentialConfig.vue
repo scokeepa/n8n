@@ -485,7 +485,7 @@ watch(showOAuthSuccessBanner, (newValue, oldValue) => {
 							:service-name="serviceName"
 							:credential-type-name="credentialType.name"
 							:label="i18n.baseText('credentialEdit.credentialConfig.connect')"
-							data-test-id="quick-connect-not-connected-button"
+							data-test-id="quick-connect-button"
 							@click="$emit('oauth')"
 						/>
 					</template>

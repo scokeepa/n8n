@@ -1627,7 +1627,9 @@ const { width } = useElementSize(credNameRef);
 					<SaveButton
 						v-if="showHeaderSaveButton"
 						:class="$style.saveButton"
-						:disabled="(!hasUnsavedChanges && !isTesting) || !requiredPropertiesFilled"
+						:disabled="
+							(!isNewCredential && !hasUnsavedChanges && !isTesting) || !requiredPropertiesFilled
+						"
 						:variant="hasUnsavedChanges || isTesting ? 'solid' : 'subtle'"
 						:is-saving="isSaving || isTesting"
 						:saved="!isNewCredential && !hasUnsavedChanges && !isTesting"
